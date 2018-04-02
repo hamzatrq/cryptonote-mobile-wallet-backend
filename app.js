@@ -35,11 +35,6 @@ require('./config/passport')(passport);
 const users = require ('./controllers/users.js');
 app.use('/users',users);
 
-//index route
-app.get('/balance',(req,res)=>{
-    res.status(200).send("Here you will get your balance");
-})
-
 //start server
 app.listen(port,function(){
     console.log("Server is listening on port ::" + port);

@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/database');
 
 const justicecoinWallet = require('./wallet.js');
-const wallet =  new justicecoinWallet('45.33.26.209');
+const wallet =  new justicecoinWallet();
 
 
 router.post('/register', (req,res,next)=>{    
@@ -51,7 +51,7 @@ router.post('/authenticate',(req,res,next)=>{
                 
                 return  res.json({
                     success:true,
-                    token:'bearer '+token,
+                    token:'jwt '+token,
                     user:{
                         id:user.id,
                         email:user.email,
@@ -66,8 +66,31 @@ router.post('/authenticate',(req,res,next)=>{
     });
 });
 
+router.get('/address', passport.authenticate('jwt', {session:false}), (req, res, next) => {
+    res.send({ address: req.user.address });
+});
+
 router.get('/balance', passport.authenticate('jwt', {session:false}), (req, res, next) => {
-    res.json({'balance': 'TO be done'});
+    wallet.getBalance(req.user.address).then(b => res.json(b));
+});
+
+router.post('/send', passport.authenticate('jwt', {session:false}), (req, res, next) => {
+    const { address, amount } = req.body;
+
+    let params = {
+        'anonymity':0,
+        'fee':10,
+        'unlockTime':0,
+        'addresses':[req.user.address],
+        'transfers':[ 
+            {  
+                'amount':  amount,
+                'address': address
+            }
+        ],
+        'changeAddress': req.user.address
+    }
+    wallet.sendTransaction(params).then(tr => res.json(tr));
 });
 
 module.exports = router; 
