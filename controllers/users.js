@@ -84,7 +84,7 @@ router.post('/send', passport.authenticate('jwt', {session:false}), (req, res, n
         'addresses':[req.user.address],
         'transfers':[ 
             {  
-                'amount':  amount,
+                'amount':  amount*10000,
                 'address': address
             }
         ],
